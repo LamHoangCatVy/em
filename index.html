@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yêu Em</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #f6ede6;
+    --paper-deep: #efe1d6;
+    --ink: #2c2320;
+    --wine: #6f2438;
+    --wine-deep: #501a29;
+    --rose: #c98e88;
+    --gold: #b08a54;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    background: var(--paper-deep);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+    background:
+      radial-gradient(circle at 20% 10%, #fbf3ec 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, #f1e0d4 0%, transparent 50%),
+      var(--paper-deep);
+  }
+
+  .stage{
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* ---------- Seal (entry state) — the only 3D moment ---------- */
+  .seal-wrap{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 5;
+    cursor: pointer;
+    background: var(--paper-deep);
+  }
+  .seal-wrap.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+
+  .seal{
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #8a2f45, var(--wine-deep) 70%);
+    box-shadow:
+      0 16px 30px rgba(80, 26, 41, 0.5),
+      inset 0 3px 5px rgba(255,255,255,0.2),
+      inset 0 -8px 12px rgba(0,0,0,0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform-style: preserve-3d;
+    transform: rotateX(0deg);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .seal-wrap:hover .seal{
+    transform: rotateX(8deg) scale(1.05);
+    box-shadow:
+      0 22px 34px rgba(80, 26, 41, 0.55),
+      inset 0 3px 5px rgba(255,255,255,0.25),
+      inset 0 -8px 12px rgba(0,0,0,0.4);
+  }
+  .seal-wrap:active .seal{ transform: rotateX(2deg) scale(0.97); }
+
+  .seal-mono{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 30px;
+    color: #f1dcc9;
+    letter-spacing: 1px;
+  }
+
+  .seal-hint{
+    position:absolute;
+    bottom: 18%;
+    font-size: 15px;
+    color: #7a6a5f;
+    letter-spacing: 0.4px;
+  }
+
+  /* ---------- Card (flat, no tilt) ---------- */
+  .card{
+    position:relative;
+    background: var(--paper);
+    border: 1px solid #e4d2c2;
+    border-radius: 4px;
+    padding: 56px 44px 44px;
+    box-shadow: 0 24px 48px rgba(80, 40, 30, 0.16);
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.8s ease 0.15s, transform 0.8s ease 0.15s;
+  }
+  .card.reveal{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    inset: 10px;
+    border: 1px solid #d9c2ab;
+    pointer-events:none;
+  }
+
+  .mono{
+    text-align:center;
+    font-style: italic;
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .eyebrow{
+    text-align:center;
+    font-size: 17px;
+    color: var(--rose);
+    margin: 0 0 4px;
+  }
+
+  h1{
+    text-align:center;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 1.15;
+    margin: 0 0 22px;
+    color: var(--wine-deep);
+  }
+
+  .rule{
+    width: 64px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 26px;
+    opacity: 0.6;
+  }
+
+  .to{
+    font-size: 20px;
+    margin: 0 0 4px;
+    color: var(--wine);
+  }
+
+  .letter p{
+    font-size: 19px;
+    line-height: 1.6;
+    margin: 0 0 14px;
+    color: #443832;
+  }
+
+  .details{
+    margin: 30px 0 8px;
+    padding: 22px 20px;
+    background: var(--paper-deep);
+    border-radius: 3px;
+    border: 1px solid #e4d2c2;
+  }
+
+  .detail-row{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 19px;
+    padding: 7px 0;
+    border-bottom: 1px dashed #d9c2ab;
+  }
+  .detail-row:last-child{ border-bottom: none; }
+
+  .detail-label{
+    color: var(--gold);
+    font-style: italic;
+    white-space: nowrap;
+  }
+
+  .detail-value{
+    text-align:right;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .detail-value.tbd{
+    color: var(--rose);
+    font-style: italic;
+  }
+
+  .agenda{
+    margin: 30px 0 10px;
+  }
+
+  .agenda-title{
+    text-align:center;
+    font-size: 19px;
+    font-style: italic;
+    color: var(--wine);
+    margin-bottom: 18px;
+  }
+
+  .timeline{
+    position: relative;
+    padding-left: 26px;
+  }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+
+  .step{
+    position: relative;
+    padding-bottom: 22px;
+  }
+  .step:last-child{ padding-bottom: 0; }
+
+  .step::before{
+    content:"";
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--wine);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  .step-time{
+    font-size: 17px;
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: 2px;
+  }
+
+  .step-text{
+    font-size: 19px;
+    color: var(--ink);
+  }
+
+  .signoff{
+    margin-top: 38px;
+    text-align: center;
+  }
+
+  .signoff p{
+    font-size: 18px;
+    color: #443832;
+    margin: 0 0 10px;
+  }
+
+  .rsvp-question{
+    font-style: italic;
+    font-size: 20px;
+    color: var(--wine);
+    margin: 18px 0 14px;
+  }
+
+  .signature{
+    font-family: 'Caveat', cursive;
+    font-size: 40px;
+    color: var(--wine-deep);
+    line-height: 1;
+  }
+
+  .signature-line{
+    font-size: 18px;
+    color: #443832;
+    margin: 0 0 2px;
+  }
+
+  .reveal-btn{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    letter-spacing: 0.4px;
+    color: var(--paper);
+    background: var(--wine-deep);
+    border: 1px solid var(--wine-deep);
+    border-radius: 999px;
+    padding: 10px 32px;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  }
+  .reveal-btn:hover{
+    background: var(--wine);
+    box-shadow: 0 8px 16px rgba(80, 26, 41, 0.3);
+    transform: translateY(-2px);
+  }
+  .reveal-btn:active{ transform: scale(0.97); }
+  .reveal-btn.hidden{
+    display: none;
+  }
+
+  .signature-box{
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: max-height 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
+  }
+  .signature-box.shown{
+    max-height: 120px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 420px){
+    .card{ padding: 44px 24px 34px; }
+    h1{ font-size: 32px; }
+    .detail-row{ font-size: 17px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .seal-wrap, .seal, .reveal-btn{ transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="card" id="card">
+    <div class="mono">♥</div>
+    <p class="eyebrow">Our First Date</p>
+    <h1>Thư mời dự tiệc</h1>
+    <div class="rule"></div>
+
+    <div class="letter">
+      <p class="to">Gửi Em,</p>
+      <p>Vậy là đúng một tháng kể từ ngày mình chính thức là của nhau. Người ta muốn mời Em đến một buổi hẹn nho nhỏ, chỉ hai đứa mình, để cùng nhìn lại một tháng vừa qua và bắt đầu những điều đáng yêu tiếp theo.</p>
+    </div>
+
+    <div class="details">
+      <div class="detail-row">
+        <span class="detail-label">Ngày</span>
+        <span class="detail-value">Thứ Ba, 08.09.2026</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Giờ xuất phát</span>
+        <span class="detail-value">19:15</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Địa điểm</span>
+        <span class="detail-value tbd">Sẽ đưa em đi</span>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <p class="agenda-title">Lịch trình</p>
+      <div class="timeline">
+        <div class="step">
+          <div class="step-time">19:15</div>
+          <div class="step-text">Xuất phát từ 89 Láng Hạ</div>
+        </div>
+        <div class="step">
+          <div class="step-time">Sau đó</div>
+          <div class="step-text">Người ta sẽ đưa em đi, cứ tin tưởng lên xe thôi</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="signoff">
+      <p class="rsvp-question">Em sẽ tham dự chứ?</p>
+      <button type="button" class="reveal-btn" id="revealBtn">Yes</button>
+      <div class="signature-box" id="signatureBox">
+        <p class="signature-line">Yêu em,</p>
+        <div class="signature">Vy Lâm</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seal-wrap" id="sealWrap">
+    <div class="seal">
+      <div class="seal-mono">♥</div>
+    </div>
+    <div class="seal-hint">chạm để mở thiệp</div>
+  </div>
+
+</div>
+
+<script>
+  const sealWrap = document.getElementById('sealWrap');
+  const card = document.getElementById('card');
+
+  sealWrap.addEventListener('click', () => {
+    sealWrap.classList.add('hidden');
+    requestAnimationFrame(() => {
+      card.classList.add('reveal');
+    });
+  });
+
+  const revealBtn = document.getElementById('revealBtn');
+  const signatureBox = document.getElementById('signatureBox');
+
+  revealBtn.addEventListener('click', () => {
+    signatureBox.classList.add('shown');
+    revealBtn.classList.add('hidden');
+  });
+</script>
+
+</body>
+</html>
